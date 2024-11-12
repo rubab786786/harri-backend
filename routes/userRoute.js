@@ -1,9 +1,12 @@
 const express = require("express");
 const userController = require('../controller/userController');
 const verifyToken = require("../middleware/verifyToken");
+const cors = require('cors')
 
 // router
 const router = express.Router();
+var app = express()
+app.use(cors())
 
 //confirmEmail
 router.get('/test', (req,res)=>{
