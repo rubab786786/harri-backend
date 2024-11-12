@@ -6,6 +6,11 @@ const verifyToken = require("../middleware/verifyToken");
 const router = express.Router();
 
 //confirmEmail
+router.get('/test', (req,res)=>{
+    res.json({
+        message:"ok"
+    })
+});
 router.get('/confirmEmail/:token', userController.confirmEmail);
 // add a user
 router.post("/signup", userController.signup);
