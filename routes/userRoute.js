@@ -11,7 +11,7 @@ app.use(cors())
 //confirmEmail
 router.get('/test', (req,res)=>{
     res.json({
-        message:"ok"
+        message:"ok 2"
     })
 });
 router.get('/confirmEmail/:token', userController.confirmEmail);
