@@ -5,8 +5,7 @@ const cors = require('cors')
 
 // router
 const router = express.Router();
-var app = express()
-app.use(cors())
+express().use(cors())
 
 //confirmEmail
 router.get('/test', (req,res)=>{
