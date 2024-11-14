@@ -5,7 +5,10 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = mongoose.Schema(
   {
-    // googleId: { type: String, required: true },
+    googleId: {
+     type: String,
+     required: false, 
+    },
     email: {
       type: String,
       validate: [validator.isEmail, "Provide a valid Email"],

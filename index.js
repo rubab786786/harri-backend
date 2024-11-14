@@ -1,9 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const session = require("express-session");
-const passport = require("passport");
-require("./config/passport"); // Import passport configuration
 
 // internal
 const ConnectDb = require("./config/db");
@@ -24,15 +21,6 @@ const app = express();
 // middleware
 app.use(express.json());
 app.use(cors());
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your_session_secret",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Connect to database
 ConnectDb();
@@ -48,33 +36,10 @@ app.use("/api/user-order", userOrderRoute);
 app.use("/api/cloudinary", cloudinaryRoutes);
 app.use("/api/admin", adminRoutes);
 
-// Google OAuth routes
-app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  (req, res) => {
-    // When successful, redirect the user
-    res.redirect("/"); // Redirect to the home page or wherever needed
-  }
-);
-
-// Logout route
-app.get("/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) return next(err);
-    res.redirect("/"); // Redirect after logout
-  });
-});
-
 // Root route
 app.get("/", (req, res) => res.send("Apps worked successfully"));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
 
 // Global error handler
 app.use(globalErrorHandler);
@@ -92,4 +57,7 @@ app.use((req, res, next) => {
     ],
   });
   next();
+});
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
