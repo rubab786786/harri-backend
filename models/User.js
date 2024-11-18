@@ -5,10 +5,11 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = mongoose.Schema(
   {
-    googleId: {
-     type: String,
-     required: false, 
-    },
+    // googleId: {
+    //  type: String,
+    //  required: true, 
+    //  sparse: true, // Allow null for non-Google users
+    // },
     email: {
       type: String,
       validate: [validator.isEmail, "Provide a valid Email"],
@@ -19,8 +20,11 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
-      minLength: [6, 'Must be at least 6 character']
+      required: function() { return !this.isGoogleSignUp }, // Only require password for regular signups
+    },
+    isGoogleSignUp: {
+      type: Boolean,
+      default: false,
     },
 
     role: {

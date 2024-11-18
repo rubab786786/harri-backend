@@ -6,45 +6,98 @@ const { tokenForVerify } = require("../utils/token");
 const { secret } = require("../config/secret");
 
 // sign up
-module.exports.signup = async (req, res,next) => {
-  try {
-    const user = await User.findOne({ email: req.body.email });
-    if (user) {
-      res.send({ status: "failed", message: "Email already exists" });
-    } else {
-      const saved_user = await User.create(req.body);
-      const token = saved_user.generateConfirmationToken();
+// module.exports.signup = async (req, res, next) => {
+//   try {
+//     // Check if the request is from a normal signup or Google sign-in
+//     const { email, name, password } = req.body;
+    
+//     // For Google users, we might not have a password, handle accordingly
+//     const user = await User.findOne({ email });
 
-      await saved_user.save({ validateBeforeSave: false });
+//     if (user) {
+//       return res.send({ status: "failed", message: "Email already exists" });
+//     } else {
+//       // If it's a Google user, save without password
+//       const newUserData = {
+//         name,
+//         email,
+//         password: password || '', // For Google signups, password might be empty
+//         isGoogleSignUp: true, // Flag indicating this user signed up with Google
+//       };
+
+//       const savedUser = await User.create(newUserData);
+      
+//       // You can add any additional logic, like sending a verification email, etc.
+
+//       res.status(201).json({
+//         status: "success",
+//         message: "User created successfully",
+//         data: savedUser
+//       });
+//     }
+//   } catch (error) {
+//     console.log('sign up err', error);
+//     next(error);
+//   }
+// };
+module.exports.signup = async (req, res, next) => {
+  try {
+    const { email, name, password, isGoogleSignUp } = req.body;
+    
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.send({ status: "failed", message: "Email already exists" });
+    } 
+
+    // Handle both Google sign-up and manual sign-up
+    const newUserData = {
+      name,
+      email,
+      password: password || '', // Google users may not have a password
+      isGoogleSignUp: true || false,
+    };
+
+    const savedUser = await User.create(newUserData);
+    
+    if (!isGoogleSignUp) {
+      // Generate email verification token for manual sign-up
+      const token = savedUser.generateConfirmationToken();
+      savedUser.confirmationToken = token;
+      savedUser.confirmationTokenExpires = new Date(Date.now() + 15 * 60 * 1000); // Token expires in 15 minutes
+      await savedUser.save({ validateBeforeSave: false });
 
       const mailData = {
         from: secret.email_user,
-        to: `${req.body.email}`,
-        subject: "Email Activation",
+        to: email,
         subject: "Verify Your Email",
-        html: `<h2>Hello ${req.body.name}</h2>
-        <p>Verify your email address to complete the signup and login into your <strong>hamart</strong> account.</p>
-  
-          <p>This link will expire in <strong> 15 minute</strong>.</p>
-  
-          <p style="margin-bottom:20px;">Click this link for active your account</p>
-  
+        html: `
+          <h2>Hello ${name}</h2>
+          <p>Verify your email address to complete the signup and login into your <strong>Hamart</strong> account.</p>
+          <p>This link will expire in <strong>15 minutes</strong>.</p>
+          <p>Click this link to activate your account:</p>
           <a href="http://localhost:3000/email-verify/${token}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none;">Verify Account</a>
-  
-          <p style="margin-top: 35px;">If you did not initiate this request, please contact us immediately at support@hamart.com</p>
-  
-          <p style="margin-bottom:0px;">Thank you</p>
+          <p>If you did not initiate this request, please contact us immediately at support@hamart.com</p>
+          <p>Thank you</p>
           <strong>Hamart Team</strong>
-           `,
+        `,
       };
+
       const message = "Please check your email to verify!";
       sendEmail(mailData, res, message);
     }
+
+    res.status(201).json({
+      status: "success",
+      message: "User created successfully. Please verify your email.",
+      data: savedUser
+    });
+    
   } catch (error) {
-    console.log('sign up err',error);
-    next(error)
+    console.log('sign up err', error);
+    next(error);
   }
 };
+
 
 /**
  * 1. Check if Email and password are given 
