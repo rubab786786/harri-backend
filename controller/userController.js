@@ -40,6 +40,120 @@ const { secret } = require("../config/secret");
 //     next(error);
 //   }
 // };
+// module.exports.signup = async (req, res, next) => {
+//   try {
+//     const { email, name, password, isGoogleSignUp } = req.body;
+    
+//     const user = await User.findOne({ email });
+//     if (user) {
+//       return res.send({ status: "failed", message: "Email already exists" });
+//     } 
+
+//     // Handle both Google sign-up and manual sign-up
+//     const newUserData = {
+//       name,
+//       email,
+//       password: password || '', // Google users may not have a password
+//       isGoogleSignUp: true || false, // false for manual sign-up
+//     };
+
+//     const savedUser = await User.create(newUserData);
+    
+//     if (!isGoogleSignUp) {
+//       // Generate email verification token for manual sign-up
+//       const token = savedUser.generateConfirmationToken();
+//       savedUser.confirmationToken = token;
+//       savedUser.confirmationTokenExpires = new Date(Date.now() + 15 * 60 * 1000); // Token expires in 15 minutes
+//       await savedUser.save({ validateBeforeSave: false });
+
+//       const mailData = {
+//         from: secret.email_user,
+//         to: email,
+//         subject: "Verify Your Email",
+//         html: `
+//           <h2>Hello ${name}</h2>
+//           <p>Verify your email address to complete the signup and login into your <strong>Hamart</strong> account.</p>
+//           <p>This link will expire in <strong>15 minutes</strong>.</p>
+//           <p>Click this link to activate your account:</p>
+//           <a href="http://localhost:3000/email-verify/${token}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none;">Verify Account</a>
+//           <p>If you did not initiate this request, please contact us immediately at support@hamart.com</p>
+//           <p>Thank you</p>
+//           <strong>Hamart Team</strong>
+//         `,
+//       };
+
+//       const message = "Please check your email to verify!";
+//       sendEmail(mailData, res, message);
+//     }
+
+//     res.status(201).json({
+//       status: "success",
+//       message: "User created successfully. Please verify your email.",
+//       data: savedUser
+//     });
+    
+//   } catch (error) {
+//     console.log('sign up err', error);
+//     next(error);
+//   }
+// };
+// module.exports.signup = async (req, res, next) => {
+//   try {
+//     const { email, name, password, isGoogleSignUp } = req.body;
+    
+//     const user = await User.findOne({ email });
+//     if (user) {
+//       return res.send({ status: "failed", message: "Email already exists" });
+//     }
+
+//     // Handle both Google sign-up and manual sign-up
+//     const newUserData = {
+//       name,
+//       email,
+//       password: password || '', // Google users may not have a password
+//       isGoogleSignUp: isGoogleSignUp || false, // false for manual sign-up
+//     };
+
+//     const savedUser = await User.create(newUserData);
+    
+//     if (!isGoogleSignUp) {
+//       // Generate email verification token for manual sign-up
+//       const token = savedUser.generateConfirmationToken();
+//       savedUser.confirmationToken = token;
+//       savedUser.confirmationTokenExpires = new Date(Date.now() + 15 * 60 * 1000); // Token expires in 15 minutes
+//       await savedUser.save({ validateBeforeSave: false });
+
+//       const mailData = {
+//         from: secret.email_user,
+//         to: email,
+//         subject: "Verify Your Email",
+//         html: `
+//           <h2>Hello ${name}</h2>
+//           <p>Verify your email address to complete the signup and login into your <strong>Hamart</strong> account.</p>
+//           <p>This link will expire in <strong>15 minutes</strong>.</p>
+//           <p>Click this link to activate your account:</p>
+//           <a href="http://localhost:3000/email-verify/${token}" style="background:#22c55e;color:white;border:1px solid #22c55e; padding: 10px 15px; border-radius: 4px; text-decoration:none;">Verify Account</a>
+//           <p>If you did not initiate this request, please contact us immediately at support@hamart.com</p>
+//           <p>Thank you</p>
+//           <strong>Hamart Team</strong>
+//         `,
+//       };
+
+//       const message = "Please check your email to verify!";
+//       sendEmail(mailData, res, message);
+//     }
+
+//     res.status(201).json({
+//       status: "success",
+//       message: "User created successfully. Please verify your email.",
+//       data: savedUser
+//     });
+    
+//   } catch (error) {
+//     console.log('sign up err', error);
+//     next(error);
+//   }
+// };
 module.exports.signup = async (req, res, next) => {
   try {
     const { email, name, password, isGoogleSignUp } = req.body;
@@ -47,14 +161,14 @@ module.exports.signup = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (user) {
       return res.send({ status: "failed", message: "Email already exists" });
-    } 
+    }
 
-    // Handle both Google sign-up and manual sign-up
     const newUserData = {
       name,
       email,
       password: password || '', // Google users may not have a password
-      isGoogleSignUp: true || false,
+      isGoogleSignUp: isGoogleSignUp || false, // Set flag based on signup type
+      status: isGoogleSignUp ? 'active' : 'inactive', // Set status accordingly
     };
 
     const savedUser = await User.create(newUserData);

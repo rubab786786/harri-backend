@@ -20,7 +20,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: function() { return !this.isGoogleSignUp }, // Only require password for regular signups
+      // required: function() { return !this.isGoogleSignUp }, // Only require password for regular signups
     },
     isGoogleSignUp: {
       type: Boolean,
