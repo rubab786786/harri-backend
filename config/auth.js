@@ -11,7 +11,7 @@ const signInToken = (user) => {
       email: user.email,
       address: user.address,
       phone: user.phone,
-      image: user.image,
+      image: user.image,zzzz
     },
     secret.token_secret,
     {

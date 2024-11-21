@@ -32,8 +32,9 @@ module.exports.sendEmail = (body, res, message) => {
         message: `Error happen when sending email ${err.message}`,
       });
     } else {
-      res.send({
-        message: message,
+      res.status(201).json({
+        status: "success",
+        message: message
       });
     }
   });
