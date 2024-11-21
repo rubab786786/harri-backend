@@ -207,8 +207,12 @@ module.exports.signup = async (req, res, next) => {
     });
     
   } catch (error) {
-    console.log('sign up err', error);
-    next(error);
+    res.json({
+      status: "fail",
+      message: error,
+    });
+    // console.log('sign up err', error);
+    // next(error);
   }
 };
 
